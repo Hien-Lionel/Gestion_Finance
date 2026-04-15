@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// L'URL de l'API utilise maintenant votre vraie adresse IP locale (Wi-Fi)
-const API_URL = 'http://192.168.11.103:8000/api/';
+// L'URL de l'API pointe vers le serveur de production Render
+const API_URL = 'https://faso-finance-api.onrender.com/api/';
 
 const axiosClient = axios.create({
   baseURL: API_URL,
