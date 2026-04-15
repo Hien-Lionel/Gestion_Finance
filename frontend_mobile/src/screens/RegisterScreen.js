@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TextInput, Card, Title, Paragraph } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import axiosClient from '../api/axiosClient';
 import { useTheme } from '../context/ThemeContext';
@@ -34,19 +35,38 @@ const RegisterScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      await axiosClient.post('auth/register/', formData);
+      // Build clean payload: only send fields relevant to the role
+      const payload = {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        telephone: formData.telephone,
+      };
+      if (formData.role !== 'user') payload.roleCode = formData.roleCode;
+      if (formData.role !== 'admin') payload.enterpriseCode = formData.enterpriseCode;
+
+      await axiosClient.post('auth/register/', payload);
       Alert.alert(
         'Succès',
         'Compte créé avec succès ! Connectez-vous.',
         [{ text: 'Se connecter', onPress: () => navigation.navigate('Login') }]
       );
     } catch (e) {
-      console.log('Reg Error:', e.response?.data);
-      const errorMsg = e.response?.data?.detail || 
-                       e.response?.data?.username?.[0] || 
-                       e.response?.data?.email?.[0] || 
-                       e.response?.data?.roleCode?.[0] ||
-                       'Échec de l\'inscription';
+      console.log('Reg Error response:', e.response?.data);
+      console.log('Reg Error message:', e.message);
+      console.log('Reg Error code:', e.code);
+      let errorMsg = 'Échec de l\'inscription';
+      if (e.response?.data) {
+        errorMsg = e.response.data.detail || 
+                   e.response.data.username?.[0] || 
+                   e.response.data.email?.[0] || 
+                   e.response.data.roleCode?.[0] ||
+                   e.response.data.enterpriseCode?.[0] ||
+                   JSON.stringify(e.response.data);
+      } else if (e.message) {
+        errorMsg = e.message.includes('Network') ? 'Impossible de joindre le serveur. Vérifiez votre connexion.' : e.message;
+      }
       Alert.alert('Erreur', errorMsg);
     } finally {
       setLoading(false);
@@ -55,13 +75,14 @@ const RegisterScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        <View style={styles.content}>
-          <Text style={[styles.title, { color: colors.text }]}>Inscription</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Créez votre compte Admin et votre Espace Entreprise en quelques secondes.</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Title style={[styles.title, { color: colors.text }]}>Créer un compte</Title>
+          <Paragraph style={[styles.subtitle, { color: colors.textSecondary }]}>Rejoignez Faso Finance</Paragraph>
+        </View>
 
-          <View style={[styles.form, { backgroundColor: colors.surface, shadowColor: colors.cardShadow }]}>
-            
+        <Card style={[styles.form, { backgroundColor: colors.surface }]}>
+          <Card.Content>
             <Text style={[styles.label, { color: colors.text }]}>Sélectionnez votre rôle</Text>
             <View style={styles.roleContainer}>
               {['user', 'manager', 'admin'].map((r) => (
@@ -82,84 +103,89 @@ const RegisterScreen = ({ navigation }) => {
               ))}
             </View>
 
-            <Text style={[styles.label, { color: colors.text }]}>Nom d'utilisateur *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-              placeholder="jeandupont"
-              placeholderTextColor={colors.textSecondary}
+              mode="outlined"
+              label="Nom d'utilisateur *"
+              style={[styles.input, { backgroundColor: colors.background }]}
+              outlineColor={colors.border}
+              activeOutlineColor={colors.primary}
+              textColor={colors.text}
               autoCapitalize="none"
               value={formData.username}
               onChangeText={(text) => setFormData({ ...formData, username: text })}
+              left={<TextInput.Icon icon="account" />}
             />
 
-            <Text style={[styles.label, { color: colors.text }]}>Adresse Email *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-              placeholder="jean@entreprise.com"
-              placeholderTextColor={colors.textSecondary}
+              mode="outlined"
+              label="Adresse Email *"
+              style={[styles.input, { backgroundColor: colors.background }]}
+              outlineColor={colors.border}
+              activeOutlineColor={colors.primary}
+              textColor={colors.text}
               keyboardType="email-address"
               autoCapitalize="none"
               value={formData.email}
               onChangeText={(text) => setFormData({ ...formData, email: text })}
+              left={<TextInput.Icon icon="email-outline" />}
             />
 
-            <Text style={[styles.label, { color: colors.text }]}>Mot de passe *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-              placeholder="••••••••"
-              placeholderTextColor={colors.textSecondary}
+              mode="outlined"
+              label="Mot de passe *"
+              style={[styles.input, { backgroundColor: colors.background }]}
+              outlineColor={colors.border}
+              activeOutlineColor={colors.primary}
+              textColor={colors.text}
               secureTextEntry
               value={formData.password}
               onChangeText={(text) => setFormData({ ...formData, password: text })}
+              left={<TextInput.Icon icon="lock-outline" />}
             />
 
             {formData.role !== 'user' && (
-              <>
-                <Text style={[styles.label, { color: colors.text }]}>Code Secret ({formData.role}) *</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-                  placeholder={`Code fourni pour les ${formData.role}s`}
-                  placeholderTextColor={colors.textSecondary}
-                  value={formData.roleCode}
-                  onChangeText={(text) => setFormData({ ...formData, roleCode: text })}
-                />
-              </>
+              <TextInput
+                mode="outlined"
+                label={`Code Secret (${formData.role}) *`}
+                style={[styles.input, { backgroundColor: colors.background }]}
+                outlineColor={colors.border}
+                activeOutlineColor={colors.primary}
+                textColor={colors.text}
+                value={formData.roleCode}
+                onChangeText={(text) => setFormData({ ...formData, roleCode: text })}
+                left={<TextInput.Icon icon="key-variant" />}
+              />
             )}
 
             {formData.role !== 'admin' && (
-              <>
-                <Text style={[styles.label, { color: colors.text }]}>Code Entreprise *</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-                  placeholder="Ex: ENT-1234ABD"
-                  placeholderTextColor={colors.textSecondary}
-                  value={formData.enterpriseCode}
-                  onChangeText={(text) => setFormData({ ...formData, enterpriseCode: text })}
-                />
-              </>
+              <TextInput
+                mode="outlined"
+                label="Code Entreprise *"
+                style={[styles.input, { backgroundColor: colors.background }]}
+                outlineColor={colors.border}
+                activeOutlineColor={colors.primary}
+                textColor={colors.text}
+                value={formData.enterpriseCode}
+                onChangeText={(text) => setFormData({ ...formData, enterpriseCode: text })}
+                left={<TextInput.Icon icon="domain" />}
+              />
             )}
 
-            <TouchableOpacity onPress={handleRegister} disabled={loading}>
+            <TouchableOpacity onPress={handleRegister} disabled={loading} style={{ marginTop: 10 }}>
               <LinearGradient
-                colors={[colors.primary, '#E91E63']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                colors={colors.gradient}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.button}
               >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text style={styles.buttonText}>Créer mon entreprise</Text>
-                )}
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>S'inscrire</Text>}
               </LinearGradient>
             </TouchableOpacity>
+          </Card.Content>
+        </Card>
 
-            <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Login')}>
-              <Text style={[styles.linkText, { color: colors.textSecondary }]}>Déjà un compte ? <Text style={{ color: '#E91E63', fontWeight: 'bold' }}>Se Connecter</Text></Text>
-            </TouchableOpacity>
-
-          </View>
-        </View>
+        <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Login')}>
+          <Text style={[styles.linkText, { color: colors.textSecondary }]}>Déjà un compte ? Se connecter</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -168,43 +194,29 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
   },
-  scroll: {
-    flexGrow: 1,
-  },
-  content: {
+  header: {
     padding: 24,
-    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#1a1a40',
-    textAlign: 'center',
-    marginTop: 20,
+    fontSize: 28,
+    fontWeight: 'bold',
   },
   subtitle: {
     fontSize: 16,
-    color: '#636e72',
-    textAlign: 'center',
-    marginBottom: 30,
     marginTop: 8,
   },
   form: {
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 24,
+    marginHorizontal: 20,
+    borderRadius: 16,
     elevation: 3,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
+    marginTop: 8,
   },
   roleContainer: {
     flexDirection: 'row',
@@ -224,14 +236,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    borderRadius: 10,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 20,
-    backgroundColor: '#f8f9fa',
-    color: '#2d3436',
+    fontSize: 14,
+    marginBottom: 16,
   },
   button: {
     padding: 18,

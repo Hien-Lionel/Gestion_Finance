@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TextInput, Card, Title, Paragraph } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -20,7 +21,7 @@ const LoginScreen = ({ navigation }) => {
     
     setLoading(true);
     try {
-      await login({ username: email, password }); // Django default token endpoint expects username usually, or adjust your backend
+      await login({ username: email, password });
     } catch (e) {
       Alert.alert('Erreur de connexion', e.response?.data?.detail || 'Identifiants invalides');
     } finally {
@@ -30,51 +31,64 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.content}>
-        <Text style={[styles.title, { color: colors.text }]}>Faso Finance</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Espace Mobile</Text>
+      <View style={styles.header}>
+        <View style={styles.logoLogo}>
+          <Text style={styles.logoText}>SF</Text>
+        </View>
+        <Title style={[styles.title, { color: colors.text }]}>Bon retour</Title>
+        <Paragraph style={[styles.subtitle, { color: colors.textSecondary }]}>Connectez-vous pour continuer</Paragraph>
+      </View>
 
-        <View style={[styles.form, { backgroundColor: colors.surface, shadowColor: colors.cardShadow }]}>
-          <Text style={[styles.label, { color: colors.text }]}>Nom d'utilisateur ou Email</Text>
+      <Card style={[styles.form, { backgroundColor: colors.surface }]}>
+        <Card.Content>
           <TextInput
-            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-            placeholder="Ex: alicetraore"
+            mode="outlined"
+            label="Adresse Email"
+            style={[styles.input, { backgroundColor: colors.background }]}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.primary}
+            textColor={colors.text}
             placeholderTextColor={colors.textSecondary}
+            keyboardType="email-address"
+            autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
-            autoCapitalize="none"
+            left={<TextInput.Icon icon="email-outline" />}
           />
 
-          <Text style={[styles.label, { color: colors.text }]}>Mot de passe</Text>
           <TextInput
-            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
-            placeholder="••••••••"
+            mode="outlined"
+            label="Mot de passe"
+            style={[styles.input, { backgroundColor: colors.background, marginTop: 16 }]}
+            outlineColor={colors.border}
+            activeOutlineColor={colors.primary}
+            textColor={colors.text}
             placeholderTextColor={colors.textSecondary}
+            secureTextEntry
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            left={<TextInput.Icon icon="lock-outline" />}
           />
 
-          <TouchableOpacity onPress={handleLogin} disabled={loading}>
-            <LinearGradient
-              colors={[colors.primary, '#E91E63']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.button}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.buttonText}>Se connecter</Text>
-              )}
-            </LinearGradient>
+          <TouchableOpacity style={styles.forgotPassword}>
+            <Text style={{ color: colors.primary, fontWeight: '600' }}>Mot de passe oublié ?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Landing')}>
-            <Text style={[styles.linkText, { color: colors.textSecondary }]}>← Retour à l'accueil</Text>
+          <TouchableOpacity onPress={handleLogin} disabled={loading} style={{ marginTop: 10 }}>
+            <LinearGradient
+              colors={colors.gradient}
+              start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              style={styles.loginBtn}
+            >
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.loginTxt}>Se Connecter</Text>}
+            </LinearGradient>
           </TouchableOpacity>
-        </View>
-      </View>
+        </Card.Content>
+      </Card>
+
+      <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Landing')}>
+        <Text style={[styles.linkText, { color: colors.textSecondary }]}>← Retour à l'accueil</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -82,59 +96,55 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
-  },
-  content: {
-    flex: 1,
     padding: 24,
+  },
+  header: {
+    marginTop: 40,
+    marginBottom: 40,
+    alignItems: 'center',
+  },
+  logoLogo: {
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    backgroundColor: '#6200ee',
     justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logoText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   title: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#1a1a40',
-    textAlign: 'center',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#636e72',
-    textAlign: 'center',
-    marginBottom: 40,
-    marginTop: 8,
   },
   form: {
-    backgroundColor: '#fff',
-    padding: 30,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 24,
+    borderRadius: 16,
     elevation: 3,
   },
-  label: {
-    fontSize: 14,
-    color: '#2d3436',
-    fontWeight: '600',
-    marginBottom: 8,
-  },
   input: {
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    borderRadius: 10,
-    padding: 16,
     fontSize: 16,
-    marginBottom: 20,
-    backgroundColor: '#f8f9fa',
-    color: '#2d3436',
   },
-  button: {
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 30,
+    marginTop: 8,
+  },
+  loginBtn: {
+    width: '100%',
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: {
+  loginTxt: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',

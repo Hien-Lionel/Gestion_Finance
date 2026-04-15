@@ -1,4 +1,6 @@
-import { SafeAreaView, Dimensions } from 'react-native';
+import React from 'react';
+import { Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     marginBottom: 16,
-    shadowColor: '#3F51B5',
+    shadowColor: '#667eea',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,

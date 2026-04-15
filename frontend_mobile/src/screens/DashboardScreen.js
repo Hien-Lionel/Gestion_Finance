@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Card, Text, Title, Paragraph, Avatar, ProgressBar } from 'react-native-paper';
+import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -8,70 +10,95 @@ import { useCurrency } from '../context/CurrencyContext';
 const { width } = Dimensions.get('window');
 
 const DashboardScreen = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { formatMoney } = useCurrency();
-  const { colors, toggleTheme, isDark } = useTheme();
+  const { colors } = useTheme();
 
   const stats = [
-    { title: 'Profit', value: formatMoney(6453440), color: colors.primary, icon: '💰' },
-    { title: 'Dépenses', value: formatMoney(2150000), color: '#E91E63', icon: '📉' },
+    { title: 'Profit', value: formatMoney(6453440), change: '+12.5%', up: true, progress: 0.72, color: '#667eea', icon: 'cash-multiple' },
+    { title: 'Dépenses', value: formatMoney(2150000), change: '+8.3%', up: true, progress: 0.65, color: '#E91E63', icon: 'trending-down' },
+    { title: 'Clients', value: '48', change: '+22.1%', up: true, progress: 0.85, color: '#4CAF50', icon: 'account-group' },
+    { title: 'Taux Rebond', value: '32.6%', change: '-4.2%', up: false, progress: 0.33, color: '#FF9800', icon: 'chart-line' },
   ];
 
   const recentTransactions = [
-    { id: 1, desc: 'Prestation dev', date: 'Aujourd\'hui', amount: 1968000, type: 'income' },
-    { id: 2, desc: 'Abonnement Cloud', date: 'Hier', amount: -65600, type: 'expense' },
-    { id: 3, desc: 'Achat fournitures', date: '10 Oct', amount: -131200, type: 'expense' },
+    { id: 1, desc: 'Prestation développement', amount: 1968000, type: 'income', date: "Aujourd'hui" },
+    { id: 2, desc: 'Abonnement Cloud AWS', amount: -65600, type: 'expense', date: 'Hier' },
+    { id: 3, desc: 'Paiement Client ABC', amount: 984000, type: 'income', date: '12 Oct' },
+    { id: 4, desc: 'Achat fournitures', amount: -131200, type: 'expense', date: '10 Oct' },
+    { id: 5, desc: 'Consultation stratégique', amount: 492000, type: 'income', date: '08 Oct' },
+  ];
+
+  const invoiceSummary = [
+    { label: 'Payées', count: 12, color: '#4CAF50' },
+    { label: 'En attente', count: 5, color: '#FF9800' },
+    { label: 'En retard', count: 2, color: '#f44336' },
   ];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <View>
-          <Text style={[styles.greeting, { color: colors.textSecondary }]}>👋 Bonjour,</Text>
-          <Text style={[styles.username, { color: colors.text }]}>{user?.first_name ? `${user.first_name} ${user.last_name}` : user?.username}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity style={{ marginRight: 15 }} onPress={toggleTheme}>
-            <Text style={{ fontSize: 20 }}>{isDark ? '☀️' : '🌙'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-            <Text style={styles.logoutTxt}>Déconnexion</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={[styles.greeting, { color: colors.textSecondary }]}>👋 Bonjour, {user?.first_name || user?.username}</Text>
+        <Title style={[styles.title, { color: colors.text }]}>Tableau de bord</Title>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
-        <View style={styles.statsRow}>
+        {/* Statistics Grid (2x2) */}
+        <View style={styles.statsGrid}>
           {stats.map((s, i) => (
-            <View key={i} style={[styles.statCard, { backgroundColor: colors.surface, shadowColor: colors.cardShadow, borderTopColor: s.color, borderTopWidth: 4 }]}>
-              <Text style={styles.statIcon}>{s.icon}</Text>
-              <Text style={[styles.statTitle, { color: colors.textSecondary }]}>{s.title}</Text>
-              <Text style={[styles.statValue, { color: colors.text }]}>{s.value}</Text>
-            </View>
+            <Card key={i} style={[styles.statCard, { backgroundColor: colors.surface }]}>
+              <Card.Content>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Avatar.Icon size={36} icon={s.icon} style={{ backgroundColor: s.color + '22' }} color={s.color} />
+                  <Text style={{ color: s.up ? '#4CAF50' : '#E91E63', fontSize: 12, fontWeight: 'bold' }}>
+                    {s.up ? '↑' : '↓'} {s.change}
+                  </Text>
+                </View>
+                <Title style={{ color: colors.text, fontSize: 18, marginTop: 8 }}>{s.value}</Title>
+                <Paragraph style={{ color: colors.textSecondary, fontSize: 12 }}>{s.title}</Paragraph>
+                <ProgressBar progress={s.progress} color={s.color} style={{ height: 4, borderRadius: 2, marginTop: 8, backgroundColor: colors.border }} />
+              </Card.Content>
+            </Card>
           ))}
         </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>🔄 Dernières Transactions</Text>
-          <View style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.cardShadow }]}>
-            {recentTransactions.map((t, index) => (
-              <View key={t.id} style={[styles.transactionItem, index === recentTransactions.length - 1 && { borderBottomWidth: 0 }, { borderBottomColor: colors.border }]}>
-                <View style={styles.transLeft}>
-                  <View style={[styles.iconCircle, { backgroundColor: t.type === 'income' ? '#e8f5e9' : '#fce4ec' }]}>
-                    <Text>{t.type === 'income' ? '📈' : '📉'}</Text>
-                  </View>
-                  <View>
-                    <Text style={[styles.transDesc, { color: colors.text }]}>{t.desc}</Text>
-                    <Text style={[styles.transDate, { color: colors.textSecondary }]}>{t.date}</Text>
-                  </View>
+        {/* Invoice Summary */}
+        <Card style={[styles.sectionCard, { backgroundColor: colors.surface }]}>
+          <Card.Content>
+            <Title style={{ color: colors.text, fontSize: 16, marginBottom: 12 }}>📋 Résumé Factures</Title>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+              {invoiceSummary.map((item, i) => (
+                <View key={i} style={{ alignItems: 'center' }}>
+                  <Text style={{ color: item.color, fontSize: 28, fontWeight: 'bold' }}>{item.count}</Text>
+                  <Paragraph style={{ color: colors.textSecondary, fontSize: 12 }}>{item.label}</Paragraph>
                 </View>
-                <Text style={[styles.transAmount, { color: t.type === 'income' ? '#4CAF50' : '#E91E63' }]}>
-                  {t.type === 'income' ? '+' : ''}{formatMoney(t.amount)}
-                </Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          </Card.Content>
+        </Card>
+
+        {/* Recent Transactions */}
+        <View style={styles.section}>
+          <Title style={{ color: colors.text, fontSize: 16, marginBottom: 12 }}>🔄 Dernières Transactions</Title>
+          <Card style={{ backgroundColor: colors.surface, elevation: 1, borderRadius: 16 }}>
+            <Card.Content style={{ padding: 0 }}>
+              {recentTransactions.map((t, index) => (
+                <View key={t.id} style={[styles.transactionItem, index === recentTransactions.length - 1 && { borderBottomWidth: 0 }, { borderBottomColor: colors.border }]}>
+                  <View style={styles.transLeft}>
+                    <Avatar.Icon size={36} icon={t.type === 'income' ? 'trending-up' : 'trending-down'} style={{ backgroundColor: t.type === 'income' ? '#e8f5e9' : '#fce4ec' }} color={t.type === 'income' ? '#4CAF50' : '#E91E63'} />
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                      <Text style={{ color: colors.text, fontWeight: '600', fontSize: 14 }}>{t.desc}</Text>
+                      <Paragraph style={{ color: colors.textSecondary, fontSize: 11 }}>{t.date}</Paragraph>
+                    </View>
+                  </View>
+                  <Text style={{ color: t.type === 'income' ? '#4CAF50' : '#E91E63', fontWeight: 'bold', fontSize: 14 }}>
+                    {t.type === 'income' ? '+' : ''}{formatMoney(t.amount)}
+                  </Text>
+                </View>
+              ))}
+            </Card.Content>
+          </Card>
         </View>
 
       </ScrollView>
@@ -80,37 +107,17 @@ const DashboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  greeting: { fontSize: 14, color: '#636e72', fontWeight: '500' },
-  username: { fontSize: 24, fontWeight: '800', color: '#1a1a40' },
-  logoutBtn: { backgroundColor: '#ffeaa7', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
-  logoutTxt: { color: '#d63031', fontWeight: '600', fontSize: 12 },
-  scrollContent: { padding: 20 },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
-  statCard: {
-    backgroundColor: '#fff', padding: 16, borderRadius: 16, width: (width - 56) / 2,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, elevation: 3
-  },
-  statIcon: { fontSize: 20, marginBottom: 8 },
-  statTitle: { fontSize: 12, color: '#636e72', textTransform: 'uppercase', fontWeight: '600', marginBottom: 4 },
-  statValue: { fontSize: 18, fontWeight: '800', color: '#2d3436' },
+  container: { flex: 1 },
+  header: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 10 },
+  greeting: { fontSize: 16, fontWeight: '500' },
+  title: { fontSize: 24, fontWeight: 'bold', marginTop: 4 },
+  scrollContent: { padding: 16, paddingTop: 8 },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginBottom: 16 },
+  statCard: { width: (width - 48) / 2, borderRadius: 16, elevation: 1, marginBottom: 12 },
+  sectionCard: { borderRadius: 16, elevation: 1, marginBottom: 16 },
   section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#2d3436', marginBottom: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, elevation: 2 },
-  transactionItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f1f3f5' },
-  transLeft: { flexDirection: 'row', alignItems: 'center' },
-  iconCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  transDesc: { fontSize: 15, fontWeight: '600', color: '#2d3436' },
-  transDate: { fontSize: 12, color: '#636e72', marginTop: 2 },
-  transAmount: { fontSize: 15, fontWeight: '700' },
+  transactionItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 1 },
+  transLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
 });
 
 export default DashboardScreen;
