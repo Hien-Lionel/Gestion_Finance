@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useCurrency } from '../context/CurrencyContext';
 
 const { width } = Dimensions.get('window');
@@ -8,9 +10,10 @@ const { width } = Dimensions.get('window');
 const DashboardScreen = () => {
   const { user, logout } = useAuth();
   const { formatMoney } = useCurrency();
+  const { colors, toggleTheme, isDark } = useTheme();
 
   const stats = [
-    { title: 'Profit', value: formatMoney(6453440), color: '#3F51B5', icon: '💰' },
+    { title: 'Profit', value: formatMoney(6453440), color: colors.primary, icon: '💰' },
     { title: 'Dépenses', value: formatMoney(2150000), color: '#E91E63', icon: '📉' },
   ];
 
@@ -21,41 +24,46 @@ const DashboardScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>👋 Bonjour,</Text>
-          <Text style={styles.username}>{user?.first_name ? `${user.first_name} ${user.last_name}` : user?.username}</Text>
+          <Text style={[styles.greeting, { color: colors.textSecondary }]}>👋 Bonjour,</Text>
+          <Text style={[styles.username, { color: colors.text }]}>{user?.first_name ? `${user.first_name} ${user.last_name}` : user?.username}</Text>
         </View>
-        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-          <Text style={styles.logoutTxt}>Déconnexion</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity style={{ marginRight: 15 }} onPress={toggleTheme}>
+            <Text style={{ fontSize: 20 }}>{isDark ? '☀️' : '🌙'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+            <Text style={styles.logoutTxt}>Déconnexion</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         <View style={styles.statsRow}>
           {stats.map((s, i) => (
-            <View key={i} style={[styles.statCard, { borderTopColor: s.color, borderTopWidth: 4 }]}>
+            <View key={i} style={[styles.statCard, { backgroundColor: colors.surface, shadowColor: colors.cardShadow, borderTopColor: s.color, borderTopWidth: 4 }]}>
               <Text style={styles.statIcon}>{s.icon}</Text>
-              <Text style={styles.statTitle}>{s.title}</Text>
-              <Text style={styles.statValue}>{s.value}</Text>
+              <Text style={[styles.statTitle, { color: colors.textSecondary }]}>{s.title}</Text>
+              <Text style={[styles.statValue, { color: colors.text }]}>{s.value}</Text>
             </View>
           ))}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔄 Dernières Transactions</Text>
-          <View style={styles.card}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>🔄 Dernières Transactions</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface, shadowColor: colors.cardShadow }]}>
             {recentTransactions.map((t, index) => (
-              <View key={t.id} style={[styles.transactionItem, index === recentTransactions.length - 1 && { borderBottomWidth: 0 }]}>
+              <View key={t.id} style={[styles.transactionItem, index === recentTransactions.length - 1 && { borderBottomWidth: 0 }, { borderBottomColor: colors.border }]}>
                 <View style={styles.transLeft}>
                   <View style={[styles.iconCircle, { backgroundColor: t.type === 'income' ? '#e8f5e9' : '#fce4ec' }]}>
                     <Text>{t.type === 'income' ? '📈' : '📉'}</Text>
                   </View>
                   <View>
-                    <Text style={styles.transDesc}>{t.desc}</Text>
-                    <Text style={styles.transDate}>{t.date}</Text>
+                    <Text style={[styles.transDesc, { color: colors.text }]}>{t.desc}</Text>
+                    <Text style={[styles.transDate, { color: colors.textSecondary }]}>{t.date}</Text>
                   </View>
                 </View>
                 <Text style={[styles.transAmount, { color: t.type === 'income' ? '#4CAF50' : '#E91E63' }]}>

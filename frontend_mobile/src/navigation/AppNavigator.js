@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { ActivityIndicator, View } from 'react-native';
 
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import LandingScreen from '../screens/LandingScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 
 const Stack = createNativeStackNavigator();
@@ -28,7 +30,11 @@ const AppNavigator = () => {
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
         ) : (
           // Auth flow
-          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Group>
+            <Stack.Screen name="Landing" component={LandingScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </Stack.Group>
         )}
       </Stack.Navigator>
     </NavigationContainer>

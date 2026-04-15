@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const LoginScreen = ({ navigation }) => {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,40 +29,49 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <Text style={styles.title}>Faso Finance</Text>
-        <Text style={styles.subtitle}>Espace Mobile</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Faso Finance</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Espace Mobile</Text>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>Nom d'utilisateur ou Email</Text>
+        <View style={[styles.form, { backgroundColor: colors.surface, shadowColor: colors.cardShadow }]}>
+          <Text style={[styles.label, { color: colors.text }]}>Nom d'utilisateur ou Email</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             placeholder="Ex: alicetraore"
+            placeholderTextColor={colors.textSecondary}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Mot de passe</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Mot de passe</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
             placeholder="••••••••"
+            placeholderTextColor={colors.textSecondary}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
           />
 
-          <TouchableOpacity 
-            style={styles.button} 
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Se connecter</Text>
-            )}
+          <TouchableOpacity onPress={handleLogin} disabled={loading}>
+            <LinearGradient
+              colors={[colors.primary, '#E91E63']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.button}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Se connecter</Text>
+              )}
+            </LinearGradient>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.linkButton} onPress={() => navigation.navigate('Landing')}>
+            <Text style={[styles.linkText, { color: colors.textSecondary }]}>← Retour à l'accueil</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -69,7 +82,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f0f2f5',
   },
   content: {
     flex: 1,
@@ -77,26 +90,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '800',
     color: '#1a1a40',
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#6c757d',
+    color: '#636e72',
     textAlign: 'center',
     marginBottom: 40,
     marginTop: 8,
   },
   form: {
     backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 16,
+    padding: 30,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.04,
+    shadowRadius: 24,
     elevation: 3,
   },
   label: {
@@ -108,16 +121,16 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: '#e9ecef',
-    borderRadius: 8,
-    padding: 14,
+    borderRadius: 10,
+    padding: 16,
     fontSize: 16,
     marginBottom: 20,
     backgroundColor: '#f8f9fa',
+    color: '#2d3436',
   },
   button: {
-    backgroundColor: '#3F51B5',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
   },
@@ -126,6 +139,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  linkButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  linkText: {
+    fontSize: 15,
+    color: '#636e72',
+  }
 });
 
 export default LoginScreen;

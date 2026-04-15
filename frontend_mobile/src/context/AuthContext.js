@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosClient from '../api/axiosClient';
-import { jwtDecode } from 'jwt-decode'; // Will need to install this or parse manually
 
 export const AuthContext = createContext();
 
