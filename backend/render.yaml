@@ -1,6 +1,7 @@
 services:
   - type: web
     name: faso-finance-api
+    plan: free
     runtime: python
     region: frankfurt
     buildCommand: "./build.sh"
