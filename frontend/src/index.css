@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Reduction Palette */
+  --sidebar-top: #4a148c;
+  --sidebar-bottom: #d81b60;
+  --accent-rose: #E91E63;
+  --accent-indigo: #3F51B5;
+  --bg-page: #f8f9fa;
+  --bg-card: #ffffff;
+  --text-primary: #2d3436;
+  --text-secondary: #636e72;
+  --text-muted: #b2bec3;
+  --border-light: #e9ecef;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --shadow-hover: 0 12px 40px rgba(63,81,181,0.15);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background: var(--bg-page);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ──── Global Animations ──── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(233,30,99,0.2); }
+  50% { box-shadow: 0 0 40px rgba(233,30,99,0.4); }
+}
+
+/* ──── Ant Design Sidebar Overrides — Purple→Pink Gradient ──── */
+.ant-layout-sider {
+  background: linear-gradient(180deg, var(--sidebar-top) 0%, var(--sidebar-bottom) 100%) !important;
+}
+
+.ant-layout-sider .ant-menu-dark {
+  background: transparent !important;
+}
+
+.ant-layout-sider .ant-menu-item {
+  color: rgba(255,255,255,0.75) !important;
+  border-radius: 8px !important;
+  margin: 2px 8px !important;
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important;
+}
+
+.ant-layout-sider .ant-menu-item:hover {
+  background: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+  transform: translateX(4px);
+}
+
+.ant-layout-sider .ant-menu-item-selected {
+  background: rgba(255,255,255,0.18) !important;
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.ant-layout-sider .ant-menu-item .ant-menu-item-icon {
+  font-size: 18px !important;
+}
+
+/* ──── Smooth Transitions ──── */
+.ant-layout-content {
+  transition: all 0.3s ease;
+}
+
+/* ──── Badge animation ──── */
+.ant-badge-count {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ──── Card hover effect (global) ──── */
+.reduction-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: all 0.35s cubic-bezier(.25,.8,.25,1);
+  cursor: default;
+}
+
+.reduction-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+  border-color: rgba(63,81,181,0.15);
+}
+
+/* ──── Stats card progress bar ──── */
+.stat-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-light);
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.stat-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s cubic-bezier(.25,.8,.25,1);
+}
+
+/* ──── Scrollbar styling ──── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.25);
+}
+
+/* ──── Table overrides for light theme ──── */
+.reduction-table .ant-table {
+  background: transparent !important;
+}
+
+.reduction-table .ant-table-thead > tr > th {
+  background: #f8f9fa !important;
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  border-bottom: 2px solid var(--border-light) !important;
+}
+
+.reduction-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f1f3f5 !important;
+}
+
+.reduction-table .ant-table-tbody > tr:hover > td {
+  background: rgba(63,81,181,0.04) !important;
+}
