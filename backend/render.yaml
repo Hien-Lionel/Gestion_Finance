@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: faso-finance-api
+    runtime: python
+    region: frankfurt
+    buildCommand: "./build.sh"
+    startCommand: "cd Gestion_Finance && gunicorn Gestion_Finance.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: DJANGO_SETTINGS_MODULE
+        value: Gestion_Finance.settings
+      - key: RENDER
+        value: "true"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: faso-finance-db
+          property: connectionString
+
+databases:
+  - name: faso-finance-db
+    region: frankfurt
+    plan: free

@@ -10,13 +10,17 @@ build/
 db.sqlite3
 staticfiles/
 
-# Virtual Environment
+# Virtual Environment (root only)
 venv/
 env/
-Include/
-Lib/
-Scripts/
-pyvenv.cfg
+.venv/
+/.venv/
+/venv/
+/env/
+/Include/
+/Lib/
+/Scripts/
+/pyvenv.cfg
 
 # Node
 node_modules/
